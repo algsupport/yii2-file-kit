@@ -88,7 +88,7 @@ class UploadBehavior extends Behavior
 
     public $filesStorage = 'fileStorage';
 
-    protected array $deletePaths;
+    protected $deletePaths;
 
     protected $storage;
 
