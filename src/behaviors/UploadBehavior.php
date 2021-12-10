@@ -54,15 +54,15 @@ class UploadBehavior extends Behavior
     /**
      * @var string
      */
-    public string $sizeAttribute;
+    public $sizeAttribute;
     /**
      * @var string
      */
-    public string $nameAttribute;
+    public $nameAttribute;
     /**
      * @var string
      */
-    public string $orderAttribute;
+    public $orderAttribute;
 
     /**
      * @var string name of the relation
@@ -90,7 +90,7 @@ class UploadBehavior extends Behavior
 
     protected array $deletePaths;
 
-    protected Storage $storage;
+    protected $storage;
 
     public function events(): array
     {
