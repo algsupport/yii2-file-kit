@@ -1,12 +1,10 @@
 <?php
-/**
- * Author: Eugine Terentev <eugine@terentev.net>
- */
-
 namespace trntv\filekit\widget;
 
 use Yii;
-use yii\base\InvalidParamException;
+use ArrayObject;
+use yii\base\InvalidConfigException;
+use yii\base\InvalidArgumentException;
 use yii\helpers\ArrayHelper;
 use yii\helpers\Html;
 use yii\helpers\Json;
@@ -22,7 +20,7 @@ class Upload extends InputWidget
 {
 
     /**
-     * Avaible errors handlers
+     * Available errors handlers
      */
     const YII_ERROR_HANDLER = 'yii';
     const POPOVER_ERROR_HANDLER = 'popover';
@@ -32,76 +30,76 @@ class Upload extends InputWidget
      */
     public $files;
     /**
-     * @var array|\ArrayObject
+     * @var array|ArrayObject
      */
-    public $url;
+    public array|ArrayObject $url;
 
     /**
      * @var string path where files would be stored
      */
-    public $uploadPath = '';
+    public string $uploadPath = '';
 
     /**
      * @var array
      */
-    public $clientOptions = [];
+    public array $clientOptions = [];
     /**
      * @var bool
      */
-    public $showPreviewFilename = false;
+    public bool $showPreviewFilename = false;
     /**
      * @var bool
      */
-    public $editFilename = false;
+    public bool $editFilename = false;
     /**
      * @var bool
      */
-    public $multiple = false;
+    public bool $multiple = false;
     /**
      * @var bool
      */
-    public $sortable = false;
+    public bool $sortable = false;
     /**
      * @var int min file size in bytes
      */
-    public $minFileSize;
+    public int $minFileSize;
     /**
      * @var int
      */
-    public $maxNumberOfFiles = 1;
+    public int $maxNumberOfFiles = 1;
     /**
      * @var int max file size in bytes
      */
-    public $maxFileSize;
+    public int $maxFileSize;
     /**
      * @var string regexp
      */
-    public $acceptFileTypes;
+    public string $acceptFileTypes;
     /**
      * @var string
      */
-    public $messagesCategory = 'filekit/widget';
+    public string $messagesCategory = 'filekit/widget';
     /**
      * @var bool preview image file or not in the upload box.
      */
-    public $previewImage = true;
+    public bool $previewImage = true;
     /**
      * custom hiddenInput id，if not set $this->options['id'] will be use.
-     * useful if use name,value
+     * useful if you use name,value
      * @var null|string
      */
-    public $hiddenInputId = null;
+    public ?string $hiddenInputId = null;
     /**
      * Client error handler.
      * For using yiiActiveForm set to 'yii'
      * @var string
      */
-    public $errorHandler = self::POPOVER_ERROR_HANDLER;
+    public string $errorHandler = self::POPOVER_ERROR_HANDLER;
 
-    /**
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function init()
+	/**
+	 * @throws InvalidConfigException
+	 */
+	public function init()
     {
         parent::init();
 
@@ -118,7 +116,7 @@ class Upload extends InputWidget
             $this->clientOptions['name'] = $this->name;
         }
         if ($this->multiple && $this->value && !is_array($this->value)) {
-            throw new InvalidParamException('In "multiple" mode, value must be an array.');
+            throw new InvalidArgumentException('In "multiple" mode, value must be an array.');
         }
         if (!array_key_exists('fileparam', $this->url)) {
             $this->url['fileparam'] = $this->getFileInputName();
@@ -131,7 +129,7 @@ class Upload extends InputWidget
             $this->url['upload-path'] = $this->uploadPath;
         }
         if(!in_array($this->errorHandler,[self::YII_ERROR_HANDLER, self::POPOVER_ERROR_HANDLER]))
-            throw new InvalidParamException('errorHandler param can be "yii" or "popover"');
+            throw new InvalidArgumentException('errorHandler param can be "yii" or "popover"');
         if($this->hasModel() && $this->errorHandler == self::YII_ERROR_HANDLER){
             $this->addFieldValidator();
         } else {
@@ -187,7 +185,7 @@ class Upload extends InputWidget
     /**
      * @return string
      */
-    public function getFileInputName()
+    public function getFileInputName(): string
     {
         return sprintf('_fileinput_%s', $this->id);
     }
@@ -195,7 +193,7 @@ class Upload extends InputWidget
     /**
      * @return string
      */
-    public function run()
+    public function run(): string
     {
         $this->registerClientScript();
         $content = Html::beginTag('div');
@@ -222,7 +220,7 @@ class Upload extends InputWidget
         if ($this->sortable) {
             JuiAsset::register($this->getView());
         }
-        $this->getView()->registerJs("jQuery('#{$this->getId()}').yiiUploadKit({$options});");
+        $this->getView()->registerJs("jQuery('#{$this->getId()}').yiiUploadKit($options);");
     }
 
     /**
@@ -236,13 +234,13 @@ class Upload extends InputWidget
         } elseif (isset($this->field->errorOptions['class'])) {
             $errorSelector = '.' . implode('.', preg_split('/\s+/', $this->field->errorOptions['class'], -1, PREG_SPLIT_NO_EMPTY));
         } else {
-            $errorSelector = isset($this->field->errorOptions['tag']) ? $this->field->errorOptions['tag'] : 'span';
+            $errorSelector = $this->field->errorOptions['tag'] ?? 'span';
         }
         $clientValidator[] = [
             'id' => Html::getInputId($this->model, $this->attribute),
             'name' => $this->attribute,
-            'container' => isset($this->field->selectors['container']) ? $this->field->selectors['container'] : ".field-$inputID",
-            'input' => isset($this->field->selectors['input']) ? $this->field->selectors['input'] : "#$inputID",
+            'container' => $this->field->selectors['container'] ?? ".field-$inputID",
+            'input' => $this->field->selectors['input'] ?? "#$inputID",
             'error' => $errorSelector
         ];
         $this->field->form->attributes = ArrayHelper::merge($this->field->form->attributes, $clientValidator);

@@ -1,19 +1,17 @@
 <?php
-/**
- * Author: Eugine Terentev <eugine@terentev.net>
- */
-
 namespace trntv\filekit\widget;
 
 use yii\web\AssetBundle;
+use yii\web\JqueryAsset;
+use rmrevin\yii\fontawesome\NpmFreeAssetBundle;
 
 class UploadAsset extends AssetBundle
 {
 
     public $depends = [
-        \yii\web\JqueryAsset::class,
-        \trntv\filekit\widget\BlueimpFileuploadAsset::class,
-        \rmrevin\yii\fontawesome\NpmFreeAssetBundle::class
+        JqueryAsset::class,
+        BlueimpFileuploadAsset::class,
+        NpmFreeAssetBundle::class
     ];
 
     public $sourcePath = __DIR__ . '/assets';

@@ -2,7 +2,7 @@
 namespace trntv\filekit;
 
 use Yii;
-use League\Flysystem\FilesystemInterface;
+use yii\base\Exception;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToWriteFile;
 use trntv\filekit\events\StorageEvent;
@@ -51,7 +51,7 @@ class Storage extends Component
      * "-1" = unlimited
      * @var int
      */
-    public $maxDirFiles = 65535; // Default: Fat32 limit
+    public int $maxDirFiles = 65535; // Default: Fat32 limit
     /**
      * An array default config when save file.
      * It can be a callable for more flexible
@@ -70,11 +70,11 @@ class Storage extends Component
     /**
      * @var bool
      */
-    public $useDirindex = true;
+    public bool $useDirindex = true;
     /**
      * @var int
      */
-    private $dirindex = 1;
+    private int $dirindex = 1;
 
     /**
      * @throws InvalidConfigException
@@ -95,10 +95,6 @@ class Storage extends Component
         }
     }
 
-    /**
-     * @return FilesystemInterface
-     * @throws InvalidConfigException
-     */
     public function getFilesystem()
     {
         return $this->filesystem;
@@ -112,19 +108,11 @@ class Storage extends Component
         $this->filesystem = $filesystem;
     }
 
-    /**
-     * @param $file string|\yii\web\UploadedFile
-     * @param bool $preserveFileName
-     * @param bool $overwrite
-     * @param array|callable $config
-     * @param string $pathPrefix string path to save current file
-     *
-     * @return bool|string
-     * @throws \League\Flysystem\FileExistsException
-     * @throws \yii\base\Exception
-     * @throws \yii\base\InvalidConfigException
-     */
-    public function save($file, $preserveFileName = false, $overwrite = false, $config = [], $pathPrefix = '')
+	/**
+	 * @throws Exception
+	 * @throws InvalidConfigException
+	 */
+	public function save($file, $preserveFileName = false, $overwrite = false, $config = [], $pathPrefix = ''): bool|string
     {
         $pathPrefix = FileHelper::normalizePath($pathPrefix);
         $fileObj = File::create($file);
@@ -172,15 +160,12 @@ class Storage extends Component
         return false;
     }
 
-    /**
-     * @param $files array|\yii\web\UploadedFile[]
-     * @param bool $preserveFileName
-     * @param bool $overwrite
-     * @param array $config
-     * @return array
-     */
-    public function saveAll($files, $preserveFileName = false, $overwrite = false, array $config = [])
-    {
+	/**
+	 * @throws Exception
+	 * @throws InvalidConfigException
+	 */
+	public function saveAll($files, $preserveFileName = false, $overwrite = false, array $config = []): array
+	{
         $paths = [];
         foreach ($files as $file) {
             $paths[] = $this->save($file, $preserveFileName, $overwrite, $config);
@@ -188,26 +173,25 @@ class Storage extends Component
         return $paths;
     }
 
-    /**
-     * @param $path
-     * @return bool
-     */
-    public function delete($path)
-    {
+	/**
+	 * @throws InvalidConfigException
+	 */
+	public function delete($path): bool
+	{
         if ($this->getFilesystem()->fileExists($path)) {
             $this->beforeDelete($path, $this->getFilesystem());
             if ($this->getFilesystem()->delete($path)) {
                 $this->afterDelete($path, $this->getFilesystem());
                 return true;
-            };
+            }
         }
         return false;
     }
 
-    /**
-     * @param $files
-     */
-    public function deleteAll($files)
+	/**
+	 * @throws InvalidConfigException
+	 */
+	public function deleteAll($files)
     {
         foreach ($files as $file) {
             $this->delete($file);
@@ -219,7 +203,7 @@ class Storage extends Component
      * @param string $path
      * @return false|int|string|null
      */
-    protected function getDirIndex($path = '')
+    protected function getDirIndex(string $path = ''): bool|int|string|null
     {
         if (!$this->useDirindex) {
             return null;
@@ -244,16 +228,13 @@ class Storage extends Component
         return $this->dirindex;
     }
 
-    /**
-     * @param $path
-     * @param null|\League\Flysystem\FilesystemInterface $filesystem
-     * @throws InvalidConfigException
-     */
-    public function beforeSave($path, $filesystem = null)
+	/**
+	 * @throws InvalidConfigException
+	 */
+	public function beforeSave($path, $filesystem = null)
     {
-        /* @var \trntv\filekit\events\StorageEvent $event */
         $event = Yii::createObject([
-            'class' => StorageEvent::className(),
+            'class' => StorageEvent::class,
             'path' => $path,
             'filesystem' => $filesystem
         ]);
@@ -267,9 +248,8 @@ class Storage extends Component
      */
     public function afterSave($path, $filesystem)
     {
-        /* @var \trntv\filekit\events\StorageEvent $event */
         $event = Yii::createObject([
-            'class' => StorageEvent::className(),
+            'class' => StorageEvent::class,
             'path' => $path,
             'filesystem' => $filesystem
         ]);
@@ -283,9 +263,8 @@ class Storage extends Component
      */
     public function beforeDelete($path, $filesystem)
     {
-        /* @var \trntv\filekit\events\StorageEvent $event */
         $event = Yii::createObject([
-            'class' => StorageEvent::className(),
+            'class' => StorageEvent::class,
             'path' => $path,
             'filesystem' => $filesystem
         ]);
@@ -299,9 +278,8 @@ class Storage extends Component
      */
     public function afterDelete($path, $filesystem)
     {
-        /* @var \trntv\filekit\events\StorageEvent $event */
         $event = Yii::createObject([
-            'class' => StorageEvent::className(),
+            'class' => StorageEvent::class,
             'path' => $path,
             'filesystem' => $filesystem
         ]);

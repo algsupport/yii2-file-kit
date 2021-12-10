@@ -1,12 +1,17 @@
 <?php
 namespace trntv\filekit\behaviors;
 
+use Throwable;
+use Exception;
+use yii\db\ActiveQuery;
 use trntv\filekit\Storage;
-use Yii;
 use yii\base\Behavior;
 use yii\db\ActiveRecord;
 use yii\di\Instance;
 use yii\helpers\ArrayHelper;
+use yii\db\StaleObjectException;
+use yii\db\ActiveQueryInterface;
+use yii\base\InvalidConfigException;
 
 /**
  * Class UploadBehavior
@@ -23,16 +28,13 @@ class UploadBehavior extends Behavior
      * @var string Model attribute that contain uploaded file information
      * or array of files information
      */
-    public $attribute = 'file';
+    public string $attribute = 'file';
 
     /**
      * @var bool
      */
-    public $multiple = false;
+    public bool $multiple = false;
 
-    /**
-     * @var
-     */
     public $attributePrefix;
 
     public $attributePathName = 'path';
@@ -40,32 +42,32 @@ class UploadBehavior extends Behavior
     /**
      * @var string
      */
-    public $pathAttribute;
+    public string $pathAttribute;
     /**
      * @var string
      */
-    public $baseUrlAttribute;
+    public string $baseUrlAttribute;
     /**
      * @var string
      */
-    public $typeAttribute;
+    public string $typeAttribute;
     /**
      * @var string
      */
-    public $sizeAttribute;
+    public string $sizeAttribute;
     /**
      * @var string
      */
-    public $nameAttribute;
+    public string $nameAttribute;
     /**
      * @var string
      */
-    public $orderAttribute;
+    public string $orderAttribute;
 
     /**
      * @var string name of the relation
      */
-    public $uploadRelation;
+    public string $uploadRelation;
     /**
      * @var $uploadModel
      * Schema example:
@@ -82,26 +84,15 @@ class UploadBehavior extends Behavior
     /**
      * @var string
      */
-    public $uploadModelScenario = 'default';
+    public string $uploadModelScenario = 'default';
 
-    /**
-     * @var mixed|string
-     * Filestorage component name or Yii2 compatible object configuration
-     */
     public $filesStorage = 'fileStorage';
 
-    /**
-     * @var array
-     */
-    protected $deletePaths;
-    /**
-     * @var \trntv\filekit\Storage
-     */
-    protected $storage;
-    /**
-     * @return array
-     */
-    public function events()
+    protected array $deletePaths;
+
+    protected Storage $storage;
+
+    public function events(): array
     {
         $multipleEvents = [
             ActiveRecord::EVENT_AFTER_FIND => 'afterFindMultiple',
@@ -126,7 +117,7 @@ class UploadBehavior extends Behavior
     /**
      * @return array
      */
-    public function fields()
+    public function fields(): array
     {
         $fields = [
             $this->attributePathName ? : 'path' => $this->pathAttribute,
@@ -146,28 +137,30 @@ class UploadBehavior extends Behavior
         return $fields;
     }
 
-    /**
-     * @return void
-     */
-    public function afterValidateSingle()
+	/**
+	 * @throws Exception
+	 */
+	public function afterValidateSingle()
     {
         $this->loadModel($this->owner, $this->owner->{$this->attribute});
     }
 
-    /**
-     * @return void
-     */
-    public function afterInsertMultiple()
+	/**
+	 * @throws Exception
+	 */
+	public function afterInsertMultiple()
     {
         if ($this->owner->{$this->attribute}) {
             $this->saveFilesToRelation($this->owner->{$this->attribute});
         }
     }
 
-    /**
-     * @throws \Exception
-     */
-    public function afterUpdateMultiple()
+	/**
+	 * @throws Throwable
+	 * @throws StaleObjectException
+	 * @throws InvalidConfigException
+	 */
+	public function afterUpdateMultiple()
     {
         $filesPaths = ArrayHelper::getColumn($this->getUploaded(), 'path');
         $models = $this->owner->getRelation($this->uploadRelation)->all();
@@ -190,18 +183,21 @@ class UploadBehavior extends Behavior
         $this->updateFilesInRelation($updatedFiles);
     }
 
-    /**
-     * @return void
-     */
-    public function beforeUpdateSingle()
+
+	/**
+	 * @throws Exception
+	 */
+	public function beforeUpdateSingle()
     {
         $this->deletePaths = $this->owner->getOldAttribute($this->getAttributeField('path'));
     }
 
-    /**
-     * @return void
-     */
-    public function afterUpdateSingle()
+
+	/**
+	 * @throws InvalidConfigException
+	 * @throws Exception
+	 */
+	public function afterUpdateSingle()
     {
         $path = $this->owner->getAttribute($this->getAttributeField('path'));
         if (!empty($this->deletePaths) && $this->deletePaths !== $path) {
@@ -209,41 +205,39 @@ class UploadBehavior extends Behavior
         }
     }
 
-    /**
-     * @return void
-     */
-    public function beforeDeleteMultiple()
+       public function beforeDeleteMultiple()
     {
         $this->deletePaths = ArrayHelper::getColumn($this->getUploaded(), 'path');
     }
 
-    /**
-     * @return void
-     */
-    public function beforeDeleteSingle()
+	/**
+	 * @throws Exception
+	 */
+	public function beforeDeleteSingle()
     {
         $this->deletePaths = $this->owner->getAttribute($this->getAttributeField('path'));
     }
 
-    /**
-     * @return void
-     */
-    public function afterDelete()
+	/**
+	 * @throws InvalidConfigException
+	 */
+	public function afterDelete()
     {
         $this->deletePaths = is_array($this->deletePaths) ? array_filter($this->deletePaths) : $this->deletePaths;
         $this->deleteFiles();
     }
 
-    /**
-     * @return void
-     */
-    public function afterFindMultiple()
+
+	/**
+	 * @throws InvalidConfigException
+	 * @throws Exception
+	 */
+	public function afterFindMultiple()
     {
         $models = $this->owner->{$this->uploadRelation};
         $fields = $this->fields();
         $data = [];
         foreach ($models as $k => $model) {
-            /* @var $model \yii\db\BaseActiveRecord */
             $file = [];
             foreach ($fields as $dataField => $modelAttribute) {
                 $file[$dataField] = $model->hasAttribute($modelAttribute)
@@ -258,10 +252,11 @@ class UploadBehavior extends Behavior
         $this->owner->{$this->attribute} = $data;
     }
 
-    /**
-     * @return void
-     */
-    public function afterFindSingle()
+
+	/**
+	 * @throws InvalidConfigException
+	 */
+	public function afterFindSingle()
     {
         $file = array_map(function ($attribute) {
             return $this->owner->getAttribute($attribute);
@@ -274,10 +269,7 @@ class UploadBehavior extends Behavior
         }
     }
 
-    /**
-     * @return string
-     */
-    public function getUploadModelClass()
+    public function getUploadModelClass(): string
     {
         if (!$this->uploadModel) {
             $this->uploadModel = $this->getUploadRelation()->modelClass;
@@ -285,10 +277,10 @@ class UploadBehavior extends Behavior
         return $this->uploadModel;
     }
 
-    /**
-     * @param array $files
-     */
-    protected function saveFilesToRelation($files)
+	/**
+	 * @throws Exception
+	 */
+	protected function saveFilesToRelation($files)
     {
         $modelClass = $this->getUploadModelClass();
         foreach ($files as $file) {
@@ -302,10 +294,10 @@ class UploadBehavior extends Behavior
         }
     }
 
-    /**
-     * @param array $files
-     */
-    protected function updateFilesInRelation($files)
+	/**
+	 * @throws Exception
+	 */
+	protected function updateFilesInRelation($files)
     {
         $modelClass = $this->getUploadModelClass();
         foreach ($files as $file) {
@@ -318,42 +310,33 @@ class UploadBehavior extends Behavior
         }
     }
 
-    /**
-     * @return \trntv\filekit\Storage
-     * @throws \yii\base\InvalidConfigException
-     */
-    protected function getStorage()
+	/**
+	 * @throws InvalidConfigException
+	 */
+	protected function getStorage(): object|array|string
     {
         if (!$this->storage) {
-            $this->storage = Instance::ensure($this->filesStorage, Storage::className());
+            $this->storage = Instance::ensure($this->filesStorage, Storage::class);
         }
         return $this->storage;
 
     }
 
-    /**
-     * @return array
-     */
-    protected function getUploaded()
+    protected function getUploaded(): array
     {
         $files = $this->owner->{$this->attribute};
         return $files ?: [];
     }
 
-    /**
-     * @return \yii\db\ActiveQuery|\yii\db\ActiveQueryInterface
-     */
-    protected function getUploadRelation()
+    protected function getUploadRelation(): ActiveQueryInterface|ActiveQuery|null
     {
         return $this->owner->getRelation($this->uploadRelation);
     }
 
-    /**
-     * @param $model \yii\db\ActiveRecord
-     * @param $data
-     * @return \yii\db\ActiveRecord
-     */
-    protected function loadModel(&$model, $data)
+	/**
+	 * @throws Exception
+	 */
+	protected function loadModel($model, $data)
     {
         $attributes = array_flip($model->attributes());
         foreach ($this->fields() as $dataField => $modelField) {
@@ -364,20 +347,19 @@ class UploadBehavior extends Behavior
         return $model;
     }
 
-    /**
-     * @param $type
-     * @return mixed
-     */
-    protected function getAttributeField($type)
+	/**
+	 * @throws Exception
+	 */
+	protected function getAttributeField($type)
     {
         return ArrayHelper::getValue($this->fields(), $type, false);
     }
 
-    /**
-     * @return bool|void
-     */
-    protected function deleteFiles()
-    {
+	/**
+	 * @throws InvalidConfigException
+	 */
+	protected function deleteFiles(): bool
+	{
         $storage = $this->getStorage();
         if ($this->deletePaths !== null) {
             return is_array($this->deletePaths)
@@ -387,11 +369,10 @@ class UploadBehavior extends Behavior
         return true;
     }
 
-    /**
-     * @param $file
-     * @return mixed
-     */
-    protected function enrichFileData($file)
+	/**
+	 * @throws InvalidConfigException
+	 */
+	protected function enrichFileData($file)
     {
         $fs = $this->getStorage()->getFilesystem();
         if ($file['path'] && $fs->fileExists($file['path'])) {

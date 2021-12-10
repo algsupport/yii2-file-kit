@@ -1,78 +1,60 @@
 <?php
 namespace trntv\filekit;
 
+use Yii;
 use yii\base\InvalidConfigException;
-use yii\base\InvalidParamException;
+use yii\base\InvalidArgumentException;
 use yii\base\BaseObject;
 use yii\helpers\FileHelper;
 use yii\web\UploadedFile;
 
-/**
- * Class File
- * @package trntv\filekit
- * @author Eugene Terentev <eugene@terentev.net>
- */
+
 class File extends BaseObject
 {
-    /**
-     * @var
-     */
-    protected $path;
-    /**
-     * @var
-     */
-    protected $extension;
-    /**
-     * @var
-     */
-    protected $size;
-    /**
-     * @var
-     */
-    protected $mimeType;
 
-    /**
-     * @var
-     */
-    protected $pathinfo;
+    protected mixed $path;
 
-    /**
-     * @param $file string|\yii\web\UploadedFile
-     * @return self
-     * @throws InvalidConfigException
-     */
-    public static function create($file)
-    {
+    protected mixed $extension;
 
-        if (is_a($file, self::className())) {
+    protected mixed $size;
+
+    protected string $mimeType;
+
+    protected mixed $pathinfo;
+
+	/**
+	 * @throws InvalidConfigException
+	 */
+	public static function create($file): object|array
+	{
+
+        if (is_a($file, self::class)) {
             return $file;
         }
 
         // UploadedFile
-        if (is_a($file, UploadedFile::className())) {
+        if (is_a($file, UploadedFile::class)) {
             if ($file->error) {
-                throw new InvalidParamException("File upload error \"{$file->error}\"");
+                throw new InvalidArgumentException("File upload error \"$file->error\"");
             }
-            return \Yii::createObject([
-                'class'=>self::className(),
+            return Yii::createObject([
+                'class'=>self::class,
                 'path'=>$file->tempName,
                 'extension'=>$file->getExtension()
             ]);
         } // Path
         else {
-            return \Yii::createObject([
-                'class' => self::className(),
+            return Yii::createObject([
+                'class' => self::class,
                 'path' => FileHelper::normalizePath($file)
             ]);
         }
     }
 
-    /**
-     * @param array $files
-     * @return self[]
-     * @throws \yii\base\InvalidConfigException
-     */
-    public static function createAll(array $files)
+	/**
+	 * @throws InvalidConfigException
+	 */
+	public static function createAll(array $files): array
     {
         $result = [];
         foreach ($files as $file) {
@@ -94,7 +76,7 @@ class File extends BaseObject
     /**
      * @return mixed
      */
-    public function getPath()
+    public function getPath(): mixed
     {
         return $this->path;
     }
@@ -102,7 +84,7 @@ class File extends BaseObject
     /**
      * @return mixed
      */
-    public function getSize()
+    public function getSize(): mixed
     {
         if (!$this->size) {
             $this->size = filesize($this->path);
@@ -114,7 +96,7 @@ class File extends BaseObject
      * @return string
      * @throws InvalidConfigException
      */
-    public function getMimeType()
+    public function getMimeType(): string
     {
         if (!$this->mimeType) {
             $this->mimeType = FileHelper::getMimeType($this->path);
@@ -122,10 +104,7 @@ class File extends BaseObject
         return $this->mimeType;
     }
 
-    /**
-     * @return mixed|null
-     */
-    public function getExtension()
+    public function getExtension(): mixed
     {
         if ($this->extension === null) {
             $this->extension = $this->getPathInfo('extension');
@@ -133,20 +112,17 @@ class File extends BaseObject
         return $this->extension;
     }
 
-    /**
-     * @return mixed
-     */
-    public function getExtensionByMimeType()
+
+	/**
+	 * @throws InvalidConfigException
+	 */
+	public function getExtensionByMimeType()
     {
         $extensions = FileHelper::getExtensionsByMimeType($this->getMimeType());
         return array_shift($extensions);
     }
 
-    /**
-     * @param bool $part
-     * @return mixed|null
-     */
-    public function getPathInfo($part = false)
+    public function getPathInfo(bool $part = false): mixed
     {
         if ($this->pathinfo === null) {
             $this->pathinfo = pathinfo($this->path);
@@ -176,7 +152,7 @@ class File extends BaseObject
     /**
      * @return bool
      */
-    public function hasErrors()
+    public function hasErrors(): bool
     {
         return $this->error !== false;
     }

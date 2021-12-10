@@ -1,10 +1,10 @@
 <?php
 namespace trntv\filekit\actions;
 
-use League\Flysystem\FilesystemInterface;
-use trntv\filekit\events\UploadEvent;
-use League\Flysystem\File as FlysystemFile;
 use Yii;
+use yii\base\Exception;
+use yii\base\InvalidConfigException;
+use trntv\filekit\events\UploadEvent;
 use yii\base\DynamicModel;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -29,65 +29,65 @@ class UploadAction extends BaseAction
     /**
      * @var string
      */
-    public $fileparam = 'file';
+    public string $fileparam = 'file';
 
     /**
      * @var bool
      */
-    public $multiple = true;
+    public bool $multiple = true;
 
     /**
      * @var bool
      */
-    public $disableCsrf = true;
+    public bool $disableCsrf = true;
 
     /**
      * @var string
      */
-    public $responseFormat = Response::FORMAT_JSON;
+    public string $responseFormat = Response::FORMAT_JSON;
     /**
      * @var string
      */
-    public $responsePathParam = 'path';
+    public string $responsePathParam = 'path';
     /**
      * @var string
      */
-    public $responseBaseUrlParam = 'base_url';
+    public string $responseBaseUrlParam = 'base_url';
     /**
      * @var string
      */
-    public $responseUrlParam = 'url';
+    public string $responseUrlParam = 'url';
     /**
      * @var string
      */
-    public $responseDeleteUrlParam = 'delete_url';
+    public string $responseDeleteUrlParam = 'delete_url';
     /**
      * @var string
      */
-    public $responseMimeTypeParam = 'type';
+    public string $responseMimeTypeParam = 'type';
     /**
      * @var string
      */
-    public $responseNameParam = 'name';
+    public string $responseNameParam = 'name';
     /**
      * @var string
      */
-    public $responseSizeParam = 'size';
+    public string $responseSizeParam = 'size';
     /**
      * @var string
      */
-    public $deleteRoute = 'delete';
+    public string $deleteRoute = 'delete';
 
     /**
      * @var array
      * @see https://github.com/yiisoft/yii2/blob/master/docs/guide/input-validation.md#ad-hoc-validation-
      */
-    public $validationRules;
+    public array $validationRules;
 
     /**
      * @var string path where files would be stored
      */
-    public $uploadPath = '';
+    public string $uploadPath = '';
 
     /**
      * An array config when save file.
@@ -105,36 +105,32 @@ class UploadAction extends BaseAction
      */
     public $saveConfig = [];
 
-    /**
-     *
-     */
     public function init()
     {
-        \Yii::$app->response->format = $this->responseFormat;
+        Yii::$app->response->format = $this->responseFormat;
 
-        if (\Yii::$app->request->get('fileparam')) {
-            $this->fileparam = \Yii::$app->request->get('fileparam');
+        if (Yii::$app->request->get('fileparam')) {
+            $this->fileparam = Yii::$app->request->get('fileparam');
         }
 
-        if (\Yii::$app->request->get('upload-path')) {
-            $this->uploadPath = \Yii::$app->request->get('upload-path');
+        if (Yii::$app->request->get('upload-path')) {
+            $this->uploadPath = Yii::$app->request->get('upload-path');
         }
 
         if ($this->disableCsrf) {
-            \Yii::$app->request->enableCsrfValidation = false;
+            Yii::$app->request->enableCsrfValidation = false;
         }
     }
 
-    /**
-     * @return array
-     * @throws \HttpException
-     */
-    public function run()
+	/**
+	 * @throws InvalidConfigException
+	 * @throws Exception
+	 */
+	public function run()
     {
         $result = [];
         $uploadedFiles = UploadedFile::getInstancesByName($this->fileparam);
         foreach ($uploadedFiles as $uploadedFile) {
-            /* @var \yii\web\UploadedFile $uploadedFile */
             $output = [
                 $this->responseNameParam => Html::encode($uploadedFile->name),
                 $this->responseMimeTypeParam => $uploadedFile->type,
@@ -149,9 +145,9 @@ class UploadAction extends BaseAction
                         $output[$this->responsePathParam] = $path;
                         $output[$this->responseUrlParam] = $this->getFileStorage()->baseUrl . '/' . $path;
                         $output[$this->responseDeleteUrlParam] = Url::to([$this->deleteRoute, 'path' => $path]);
-                        $paths = \Yii::$app->session->get($this->sessionKey, []);
+                        $paths = Yii::$app->session->get($this->sessionKey, []);
                         $paths[] = $path;
-                        \Yii::$app->session->set($this->sessionKey, $paths);
+                        Yii::$app->session->set($this->sessionKey, $paths);
                         $this->afterSave($path);
 
                     } else {
@@ -173,24 +169,20 @@ class UploadAction extends BaseAction
         return $this->multiple ? $result : array_shift($result);
     }
 
-    /**
-     * @param $path
-     */
-    public function afterSave($path)
+
+	/**
+	 * @throws InvalidConfigException
+	 */
+	public function afterSave($path)
     {
-        $file = null;
         $fs = $this->getFileStorage()->getFilesystem();
-        if ($fs instanceof FilesystemInterface) {
-            $file = new FlysystemFile($fs, $path);
-        }
         $this->trigger(self::EVENT_AFTER_SAVE, new UploadEvent([
             'path' => $path,
-            'filesystem' => $fs,
-            'file' => $file
+            'filesystem' => $fs
         ]));
     }
 
-    protected function resolveErrorMessage($value)
+    protected function resolveErrorMessage($value): bool|string|null
     {
         switch ($value) {
             case UPLOAD_ERR_OK:

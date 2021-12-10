@@ -1,9 +1,11 @@
 <?php
 namespace trntv\filekit\actions;
 
+use Yii;
 use trntv\filekit\Storage;
 use yii\base\Action;
 use yii\di\Instance;
+use yii\base\InvalidConfigException;
 
 /**
  * Class BaseAction
@@ -15,33 +17,31 @@ abstract class BaseAction extends Action
     /**
      * @var string file storage component name
      */
-    public $fileStorage = 'fileStorage';
+    public string $fileStorage = 'fileStorage';
     /**
      * @var string Request param name that provides file storage component name
      */
-    public $fileStorageParam = 'fileStorage';
+    public string $fileStorageParam = 'fileStorage';
     /**
      * @var string session key to store list of uploaded files
      */
-    public $sessionKey = '_uploadedFiles';
+    public string $sessionKey = '_uploadedFiles';
     /**
      * Allows users to change filestorage by passing GET variable
      * @var bool
      */
-    public $allowChangeFilestorage = false;
+    public bool $allowChangeFilestorage = false;
 
-    /**
-     * @return \trntv\filekit\Storage
-     * @throws \yii\base\InvalidConfigException
-     */
-    protected function getFileStorage()
-    {
+	/**
+	 * @throws InvalidConfigException
+	 */
+	protected function getFileStorage(): array|object|string
+	{
         if ($this->allowChangeFilestorage) {
-            $fileStorage = \Yii::$app->request->get($this->fileStorageParam);
+            $fileStorage = Yii::$app->request->get($this->fileStorageParam);
         } else {
             $fileStorage = $this->fileStorage;
         }
-        $fileStorage = Instance::ensure($fileStorage, Storage::className());
-        return $fileStorage;
+	    return Instance::ensure($fileStorage, Storage::class);
     }
 }

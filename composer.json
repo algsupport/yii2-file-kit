@@ -5,12 +5,8 @@
     "license": "BSD-3-Clause",
     "authors": [
         {
-            "name": "Eugene Terentev",
-            "email": "eugene@terentev.net"
-        },
-        {
-            "name": "Victor Gonzalez",
-            "email": "victor@vgr.cl"
+            "name": "Albert Gukasian",
+            "email": "admin@algsupport.com"
         }
     ],
     "minimum-stability": "stable",
@@ -20,10 +16,6 @@
         "npm-asset/blueimp-file-upload": "^9.7.0",
         "rmrevin/yii2-fontawesome": "^3.4"
     },
-    "require-dev": {
-        "phpunit/phpunit": "~4.5.0",
-        "creocoder/yii2-flysystem": "~0.8"
-    },
     "autoload": {
         "psr-4": { "trntv\\filekit\\": "src/" }
     },
@@ -32,8 +24,5 @@
             "type": "composer",
             "url": "https://asset-packagist.org"
         }
-    ],
-    "scripts": {
-        "test": "vendor/bin/phpunit"
-    }
+    ]
 }

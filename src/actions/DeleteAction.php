@@ -1,17 +1,10 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: zein
- * Date: 7/13/14
- * Time: 1:20 PM
- */
-
 namespace trntv\filekit\actions;
 
+use Yii;
 use yii\web\HttpException;
-use League\Flysystem\FilesystemInterface;
+use yii\base\InvalidConfigException;
 use trntv\filekit\events\UploadEvent;
-use League\Flysystem\File as FlysystemFile;
 
 /**
  * public function actions(){
@@ -30,19 +23,17 @@ use League\Flysystem\File as FlysystemFile;
 class DeleteAction extends BaseAction
 {
     const EVENT_AFTER_DELETE = 'afterDelete';
-    /**
-     * @var string path request param
-     */
-    public $pathParam = 'path';
-    /**
-     * @return bool
-     * @throws HttpException
-     * @throws \HttpException
-     */
-    public function run()
+
+    public string $pathParam = 'path';
+
+	/**
+	 * @throws HttpException
+	 * @throws InvalidConfigException
+	 */
+	public function run()
     {
-        $path = \Yii::$app->request->get($this->pathParam);
-        $paths = \Yii::$app->session->get($this->sessionKey, []);
+        $path = Yii::$app->request->get($this->pathParam);
+        $paths = Yii::$app->session->get($this->sessionKey, []);
         if (in_array($path, $paths, true)) {
             $success = $this->getFileStorage()->delete($path);
             if (!$success) {
@@ -55,21 +46,16 @@ class DeleteAction extends BaseAction
             throw new HttpException(403);
         }
     }
-    
-    /**
-     * @param $path
-     */
-    public function afterDelete($path)
+
+	/**
+	 * @throws InvalidConfigException
+	 */
+	public function afterDelete($path)
     {
-        $file = null;
         $fs = $this->getFileStorage()->getFilesystem();
-        if ($fs instanceof FilesystemInterface) {
-            $file = new FlysystemFile($fs, $path);
-        }
         $this->trigger(self::EVENT_AFTER_DELETE, new UploadEvent([
             'path' => $path,
-            'filesystem' => $fs,
-            'file' => $file
+            'filesystem' => $fs
         ]));
     }
 }

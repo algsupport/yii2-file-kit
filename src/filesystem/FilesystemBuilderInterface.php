@@ -10,5 +10,5 @@ interface FilesystemBuilderInterface
     /**
      * @return mixed
      */
-    public function build();
+    public function build(): mixed;
 }
