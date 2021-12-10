@@ -50,7 +50,7 @@ class UploadBehavior extends Behavior
     /**
      * @var string
      */
-    public string $typeAttribute;
+    public $typeAttribute;
     /**
      * @var string
      */
