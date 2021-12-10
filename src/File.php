@@ -12,13 +12,13 @@ use yii\web\UploadedFile;
 class File extends BaseObject
 {
 
-    protected mixed $path;
+    protected $path;
 
     protected mixed $extension;
 
     protected mixed $size;
 
-    protected string $mimeType;
+    protected $mimeType;
 
     protected mixed $pathinfo;
 
