@@ -62,7 +62,7 @@ class Upload extends InputWidget
     /**
      * @var int min file size in bytes
      */
-    public int $minFileSize;
+    public $minFileSize;
     /**
      * @var int
      */
@@ -70,11 +70,11 @@ class Upload extends InputWidget
     /**
      * @var int max file size in bytes
      */
-    public int $maxFileSize;
+    public $maxFileSize;
     /**
      * @var string regexp
      */
-    public string $acceptFileTypes;
+    public $acceptFileTypes;
     /**
      * @var string
      */
