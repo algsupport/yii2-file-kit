@@ -1,4 +1,5 @@
 <?php
+
 namespace trntv\filekit;
 
 use Yii;
@@ -18,159 +19,163 @@ use yii\helpers\FileHelper;
  */
 class Storage extends Component
 {
-    /**
-     * Event triggered after delete
-     */
-    const EVENT_BEFORE_DELETE = 'beforeDelete';
-    /**
-     * Event triggered after save
-     */
-    const EVENT_BEFORE_SAVE = 'beforeSave';
-    /**
-     * Event triggered after delete
-     */
-    const EVENT_AFTER_DELETE = 'afterDelete';
-    /**
-     * Event triggered after save
-     */
-    const EVENT_AFTER_SAVE = 'afterSave';
-    /**
-     * @var
-     */
-    public $baseUrl;
-    /**
-     * @var
-     */
-    public $filesystemComponent;
-    /**
-     * @var
-     */
-    protected $filesystem;
-    /**
-     * Max files in directory
-     * "-1" = unlimited
-     * @var int
-     */
-    public int $maxDirFiles = 65535; // Default: Fat32 limit
-    /**
-     * An array default config when save file.
-     * It can be a callable for more flexible
-     *
-     * ```php
-     * function (\trntv\filekit\File $fileObj) {
-     *
-     *      return ['ContentDisposition' => 'filename="' . $fileObj->getPathInfo('filename') . '"'];
-     * }
-     * ```
-     *
-     * @var array|callable
-     * @since 2.0.2
-     */
-    public $defaultSaveConfig = [];
-    /**
-     * @var bool
-     */
-    public bool $useDirindex = true;
-    /**
-     * @var int
-     */
-    private int $dirindex = 1;
+	/**
+	 * Event triggered after delete
+	 */
+	const EVENT_BEFORE_DELETE = 'beforeDelete';
+	/**
+	 * Event triggered after save
+	 */
+	const EVENT_BEFORE_SAVE = 'beforeSave';
+	/**
+	 * Event triggered after delete
+	 */
+	const EVENT_AFTER_DELETE = 'afterDelete';
+	/**
+	 * Event triggered after save
+	 */
+	const EVENT_AFTER_SAVE = 'afterSave';
+	/**
+	 * @var
+	 */
+	public $baseUrl;
+	/**
+	 * @var
+	 */
+	public $filesystemComponent;
+	/**
+	 * @var
+	 */
+	protected $filesystem;
+	/**
+	 * Max files in directory
+	 * "-1" = unlimited
+	 * @var int
+	 */
+	public int $maxDirFiles = 65535; // Default: Fat32 limit
+	/**
+	 * An array default config when save file.
+	 * It can be a callable for more flexible
+	 *
+	 * ```php
+	 * function (\trntv\filekit\File $fileObj) {
+	 *
+	 *      return ['ContentDisposition' => 'filename="' . $fileObj->getPathInfo('filename') . '"'];
+	 * }
+	 * ```
+	 *
+	 * @var array|callable
+	 * @since 2.0.2
+	 */
+	public $defaultSaveConfig = [];
+	/**
+	 * @var bool
+	 */
+	public bool $useDirindex = true;
+	/**
+	 * @var int
+	 */
+	private int $dirindex = 1;
 
-    /**
-     * @throws InvalidConfigException
-     */
-    public function init()
-    {
-        if ($this->baseUrl !== null) {
-            $this->baseUrl = Yii::getAlias($this->baseUrl);
-        }
+	/**
+	 * @throws InvalidConfigException
+	 */
+	public function init()
+	{
+		if ($this->baseUrl !== null) {
+			$this->baseUrl = Yii::getAlias($this->baseUrl);
+		}
 
-        if ($this->filesystemComponent !== null) {
-            $this->filesystem = Yii::$app->get($this->filesystemComponent);
-        } else {
-            $this->filesystem = Yii::createObject($this->filesystem);
-            if ($this->filesystem instanceof FilesystemBuilderInterface) {
-                $this->filesystem = $this->filesystem->build();
-            }
-        }
-    }
+		if ($this->filesystemComponent !== null) {
+			$this->filesystem = Yii::$app->get($this->filesystemComponent);
+		} else {
+			$this->filesystem = Yii::createObject($this->filesystem);
+			if ($this->filesystem instanceof FilesystemBuilderInterface) {
+				$this->filesystem = $this->filesystem->build();
+			}
+		}
+	}
 
-    public function getFilesystem()
-    {
-        return $this->filesystem;
-    }
+	public function getFilesystem()
+	{
+		return $this->filesystem;
+	}
 
-    /**
-     * @param $filesystem
-     */
-    public function setFilesystem($filesystem)
-    {
-        $this->filesystem = $filesystem;
-    }
+	/**
+	 * @param $filesystem
+	 */
+	public function setFilesystem($filesystem)
+	{
+		$this->filesystem = $filesystem;
+	}
 
 	/**
 	 * @throws Exception
 	 * @throws InvalidConfigException
 	 */
 	public function save($file, $preserveFileName = false, $mode = 'r+', $config = [], $pathPrefix = ''): bool|string
-    {
-        $pathPrefix = FileHelper::normalizePath($pathPrefix);
-        $fileObj = File::create($file);
-        $dirIndex = $this->getDirIndex($pathPrefix);
-        if ($preserveFileName === false) {
-            do {
-                $filename = implode('.', [
-                    Yii::$app->security->generateRandomString(),
-                    $fileObj->getExtension()
-                ]);
-                $path = implode(DIRECTORY_SEPARATOR, array_filter([$pathPrefix, $dirIndex, $filename]));
-            } while ($this->getFilesystem()->fileExists($path));
-        } else {
-            $filename = $fileObj->getPathInfo('filename');
-            $path = implode(DIRECTORY_SEPARATOR, array_filter([$pathPrefix, $dirIndex, $filename]));
-        }
+	{
+		$pathPrefix = FileHelper::normalizePath($pathPrefix);
+		$fileObj = File::create($file);
+		$dirIndex = $this->getDirIndex($pathPrefix);
+		if ($preserveFileName === false) {
+			do {
+				$filename = implode('.', [
+					Yii::$app->security->generateRandomString(),
+					$fileObj->getExtension()
+				]);
+				$path = implode(DIRECTORY_SEPARATOR, array_filter([$pathPrefix, $dirIndex, $filename]));
+			} while ($this->getFilesystem()->fileExists($path));
+		} else {
+			$filename = $fileObj->getPathInfo('filename');
+			$path = implode(DIRECTORY_SEPARATOR, array_filter([$pathPrefix, $dirIndex, $filename]));
+		}
 
-        $this->beforeSave($fileObj->getPath(), $this->getFilesystem());
+		$this->beforeSave($fileObj->getPath(), $this->getFilesystem());
 
-        $stream = fopen($fileObj->getPath(), $mode);
+		$stream = fopen($fileObj->getPath(), $mode);
 
-        $defaultConfig = $this->defaultSaveConfig;
+		$defaultConfig = $this->defaultSaveConfig;
 
-        if (is_callable($defaultConfig)) {
-            $defaultConfig = call_user_func($defaultConfig, $fileObj);
-        }
+		if (is_callable($defaultConfig)) {
+			$defaultConfig = call_user_func($defaultConfig, $fileObj);
+		}
 
-        if (is_callable($config)) {
-            $config = call_user_func($config, $fileObj);
-        }
+		if (is_callable($config)) {
+			$config = call_user_func($config, $fileObj);
+		}
 
-        $config = array_merge($defaultConfig, $config);
-		if (!str_contains($file, 'https'))
-		{
+		$config = array_merge($defaultConfig, $config);
+		if (!str_contains($file, 'https')) {
 			$config = array_merge(['ContentType' => $fileObj->getMimeType()], $config);
 		}
 
-        // $success = $this->getFilesystem()->writeStream($path, $stream, $config);
-        try {
-            $this->getFilesystem()->writeStream($path, $stream, $config);
-			if (!$fileObj->getExtension()){
-				$newFileObj = File::create($path);
-				$newPath = $path.$newFileObj->getExtensionByMimeType();
-				if (rename($path, $newPath))
-				{
-					$path = $newPath;
-				}
+		// $success = $this->getFilesystem()->writeStream($path, $stream, $config);
+		try {
+			$this->getFilesystem()->writeStream($path, $stream, $config);
+			if (!$fileObj->getExtension()) {
+				$newFileObj = File::create($this->baseUrl . '/' . $path);
+				$extension = $newFileObj->getExtensionByMimeType();
+				$newPath = implode('.', [
+					$path,
+					$extension
+				]);
+				$this->getFilesystem()->move($path, $newPath);
+
 			}
-            $this->afterSave($path, $this->getFilesystem());
-            return $path;
-        } catch (FilesystemException | UnableToWriteFile $exception) {
-            var_dump($exception);
-        }
-        if (is_resource($stream)) {
-            fclose($stream);
-        }
-        return false;
-    }
+			else {
+				$newPath = $path;
+			}
+			$this->afterSave($newPath, $this->getFilesystem());
+			return $newPath;
+		} catch (FilesystemException|UnableToWriteFile $exception) {
+			var_dump($exception);
+		}
+		if (is_resource($stream)) {
+			fclose($stream);
+		}
+		return false;
+	}
 
 	/**
 	 * @throws Exception
@@ -178,123 +183,123 @@ class Storage extends Component
 	 */
 	public function saveAll($files, $preserveFileName = false, $overwrite = false, array $config = []): array
 	{
-        $paths = [];
-        foreach ($files as $file) {
-            $paths[] = $this->save($file, $preserveFileName, $overwrite, $config);
-        }
-        return $paths;
-    }
+		$paths = [];
+		foreach ($files as $file) {
+			$paths[] = $this->save($file, $preserveFileName, $overwrite, $config);
+		}
+		return $paths;
+	}
 
 	/**
 	 * @throws InvalidConfigException
 	 */
 	public function delete($path): bool
 	{
-        if ($this->getFilesystem()->fileExists($path)) {
-            $this->beforeDelete($path, $this->getFilesystem());
-            if ($this->getFilesystem()->delete($path)) {
-                $this->afterDelete($path, $this->getFilesystem());
-                return true;
-            }
-        }
-        return false;
-    }
+		if ($this->getFilesystem()->fileExists($path)) {
+			$this->beforeDelete($path, $this->getFilesystem());
+			if ($this->getFilesystem()->delete($path)) {
+				$this->afterDelete($path, $this->getFilesystem());
+				return true;
+			}
+		}
+		return false;
+	}
 
 	/**
 	 * @throws InvalidConfigException
 	 */
 	public function deleteAll($files)
-    {
-        foreach ($files as $file) {
-            $this->delete($file);
-        }
+	{
+		foreach ($files as $file) {
+			$this->delete($file);
+		}
 
-    }
+	}
 
-    /**
-     * @param string $path
-     * @return false|int|string|null
-     */
-    protected function getDirIndex(string $path = ''): bool|int|string|null
-    {
-        if (!$this->useDirindex) {
-            return null;
-        }
-        $normalizedPath = '.dirindex';
-        if (isset($path)) {
-            $normalizedPath = $path . DIRECTORY_SEPARATOR . '.dirindex';
-        }
-        if (!$this->getFilesystem()->fileExists($normalizedPath)) {
-            $this->getFilesystem()->write($normalizedPath, (string)$this->dirindex);
-        } else {
-            $this->dirindex = $this->getFilesystem()->read($normalizedPath);
-            if ($this->maxDirFiles !== -1) {
-                $filesCount = count($this->getFilesystem()->listContents($this->dirindex)->sortByPath()->toArray());
-                if ($filesCount > $this->maxDirFiles) {
-                    $this->dirindex++;
-                    $this->getFilesystem()->write($normalizedPath, (string)$this->dirindex);
-                }
-            }
-        }
+	/**
+	 * @param string $path
+	 * @return false|int|string|null
+	 */
+	protected function getDirIndex(string $path = ''): bool|int|string|null
+	{
+		if (!$this->useDirindex) {
+			return null;
+		}
+		$normalizedPath = '.dirindex';
+		if (isset($path)) {
+			$normalizedPath = $path . DIRECTORY_SEPARATOR . '.dirindex';
+		}
+		if (!$this->getFilesystem()->fileExists($normalizedPath)) {
+			$this->getFilesystem()->write($normalizedPath, (string)$this->dirindex);
+		} else {
+			$this->dirindex = $this->getFilesystem()->read($normalizedPath);
+			if ($this->maxDirFiles !== -1) {
+				$filesCount = count($this->getFilesystem()->listContents($this->dirindex)->sortByPath()->toArray());
+				if ($filesCount > $this->maxDirFiles) {
+					$this->dirindex++;
+					$this->getFilesystem()->write($normalizedPath, (string)$this->dirindex);
+				}
+			}
+		}
 
-        return $this->dirindex;
-    }
+		return $this->dirindex;
+	}
 
 	/**
 	 * @throws InvalidConfigException
 	 */
 	public function beforeSave($path, $filesystem = null)
-    {
-        $event = Yii::createObject([
-            'class' => StorageEvent::class,
-            'path' => $path,
-            'filesystem' => $filesystem
-        ]);
-        $this->trigger(self::EVENT_BEFORE_SAVE, $event);
-    }
+	{
+		$event = Yii::createObject([
+			'class' => StorageEvent::class,
+			'path' => $path,
+			'filesystem' => $filesystem
+		]);
+		$this->trigger(self::EVENT_BEFORE_SAVE, $event);
+	}
 
-    /**
-     * @param $path
-     * @param $filesystem
-     * @throws InvalidConfigException
-     */
-    public function afterSave($path, $filesystem)
-    {
-        $event = Yii::createObject([
-            'class' => StorageEvent::class,
-            'path' => $path,
-            'filesystem' => $filesystem
-        ]);
-        $this->trigger(self::EVENT_AFTER_SAVE, $event);
-    }
+	/**
+	 * @param $path
+	 * @param $filesystem
+	 * @throws InvalidConfigException
+	 */
+	public function afterSave($path, $filesystem)
+	{
+		$event = Yii::createObject([
+			'class' => StorageEvent::class,
+			'path' => $path,
+			'filesystem' => $filesystem
+		]);
+		$this->trigger(self::EVENT_AFTER_SAVE, $event);
+	}
 
-    /**
-     * @param $path
-     * @param $filesystem
-     * @throws InvalidConfigException
-     */
-    public function beforeDelete($path, $filesystem)
-    {
-        $event = Yii::createObject([
-            'class' => StorageEvent::class,
-            'path' => $path,
-            'filesystem' => $filesystem
-        ]);
-        $this->trigger(self::EVENT_BEFORE_DELETE, $event);
-    }
+	/**
+	 * @param $path
+	 * @param $filesystem
+	 * @throws InvalidConfigException
+	 */
+	public function beforeDelete($path, $filesystem)
+	{
+		$event = Yii::createObject([
+			'class' => StorageEvent::class,
+			'path' => $path,
+			'filesystem' => $filesystem
+		]);
+		$this->trigger(self::EVENT_BEFORE_DELETE, $event);
+	}
 
-    /**
-     * @param $path
-     * @param $filesystem
-     * @throws InvalidConfigException
-     */
-    public function afterDelete($path, $filesystem)
-    {
-        $event = Yii::createObject([
-            'class' => StorageEvent::class,
-            'path' => $path,
-            'filesystem' => $filesystem
-        ]);
-        $this->trigger(self::EVENT_AFTER_DELETE, $event);
-    }
+	/**
+	 * @param $path
+	 * @param $filesystem
+	 * @throws InvalidConfigException
+	 */
+	public function afterDelete($path, $filesystem)
+	{
+		$event = Yii::createObject([
+			'class' => StorageEvent::class,
+			'path' => $path,
+			'filesystem' => $filesystem
+		]);
+		$this->trigger(self::EVENT_AFTER_DELETE, $event);
+	}
 }
