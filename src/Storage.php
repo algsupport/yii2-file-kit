@@ -156,7 +156,7 @@ class Storage extends Component
 			if (!$fileObj->getExtension()) {
 				$newFileObj = File::create(Yii::getAlias('@storage') . '/web/source/' . $path);
 				$extension = $newFileObj->getExtensionByMimeType();
-				$newPath = implode('.', [$path,	$extension]);
+				$newPath = $path.$extension;
 				$this->getFilesystem()->move($path, $newPath);
 			}
 			else {
