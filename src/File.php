@@ -14,7 +14,7 @@ class File extends BaseObject
 
     protected $path;
 
-    protected mixed $extension;
+    protected $extension;
 
     protected mixed $size;
 
