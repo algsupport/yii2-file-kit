@@ -154,14 +154,10 @@ class Storage extends Component
 		try {
 			$this->getFilesystem()->writeStream($path, $stream, $config);
 			if (!$fileObj->getExtension()) {
-				$newFileObj = File::create($this->baseUrl . '/' . $path);
+				$newFileObj = File::create(Yii::getAlias('@storage') . '/' . $path);
 				$extension = $newFileObj->getExtensionByMimeType();
-				$newPath = implode('.', [
-					$path,
-					$extension
-				]);
+				$newPath = implode('.', [$path,	$extension]);
 				$this->getFilesystem()->move($path, $newPath);
-
 			}
 			else {
 				$newPath = $path;
