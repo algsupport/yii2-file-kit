@@ -153,6 +153,14 @@ class Storage extends Component
         // $success = $this->getFilesystem()->writeStream($path, $stream, $config);
         try {
             $this->getFilesystem()->writeStream($path, $stream, $config);
+			if (!$fileObj->getExtension()){
+				$newFileObj = File::create($path);
+				$newPath = $path.$newFileObj->getExtensionByMimeType();
+				if (rename($path, $newPath))
+				{
+					$path = $newPath;
+				}
+			}
             $this->afterSave($path, $this->getFilesystem());
             return $path;
         } catch (FilesystemException | UnableToWriteFile $exception) {
