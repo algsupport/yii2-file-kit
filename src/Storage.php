@@ -114,14 +114,8 @@ class Storage extends Component
 	 */
 	public function save($file, $preserveFileName = false, $mode = 'r+', $config = [], $pathPrefix = ''): bool|string
     {
-		if (str_contains($file, 'https')){
-			$downloadedFile = $this->getFilesystem()->readStream($file);
-		}
-		else{
-			$downloadedFile = $file;
-		}
         $pathPrefix = FileHelper::normalizePath($pathPrefix);
-        $fileObj = File::create($downloadedFile);
+        $fileObj = File::create($file);
         $dirIndex = $this->getDirIndex($pathPrefix);
         if ($preserveFileName === false) {
             do {
@@ -150,7 +144,11 @@ class Storage extends Component
             $config = call_user_func($config, $fileObj);
         }
 
-        $config = array_merge(['ContentType' => $fileObj->getMimeType()], $defaultConfig, $config);
+        $config = array_merge($defaultConfig, $config);
+		if (!str_contains($file, 'https'))
+		{
+			$config = array_merge(['ContentType' => $fileObj->getMimeType()], $config);
+		}
 
         // $success = $this->getFilesystem()->writeStream($path, $stream, $config);
         try {
