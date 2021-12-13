@@ -115,9 +115,7 @@ class Storage extends Component
 	public function save($file, $preserveFileName = false, $mode = 'r+', $config = [], $pathPrefix = ''): bool|string
     {
 		if (str_contains($file, 'https')){
-			$read_stream = fopen($file, $mode);
-			$downloadedFile = $this->getFilesystem()->readStream($read_stream);
-			fclose($read_stream);
+			$downloadedFile = $this->getFilesystem()->readStream($file);
 		}
 		else{
 			$downloadedFile = $file;
