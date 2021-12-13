@@ -115,10 +115,15 @@ class Storage extends Component
 	public function save($file, $preserveFileName = false, $mode = 'r+', $config = [], $pathPrefix = ''): bool|string
     {
 		if (str_contains($file, 'https')){
-			$file = $this->getFilesystem()->readStream($file);
+			$read_stream = fopen($file, $mode);
+			$downloadedFile = $this->getFilesystem()->readStream($read_stream);
+			fclose($read_stream);
+		}
+		else{
+			$downloadedFile = $file;
 		}
         $pathPrefix = FileHelper::normalizePath($pathPrefix);
-        $fileObj = File::create($file);
+        $fileObj = File::create($downloadedFile);
         $dirIndex = $this->getDirIndex($pathPrefix);
         if ($preserveFileName === false) {
             do {
