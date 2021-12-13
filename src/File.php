@@ -119,7 +119,7 @@ class File extends BaseObject
 	public function getExtensionByMimeType()
     {
         $extensions = FileHelper::getExtensionsByMimeType($this->getMimeType());
-        return array_shift($extensions);
+        return array_pop($extensions);
     }
 
     public function getPathInfo(bool $part = false): mixed
