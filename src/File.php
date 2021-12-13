@@ -20,7 +20,7 @@ class File extends BaseObject
 
     protected $mimeType;
 
-    protected mixed $pathinfo;
+    protected $pathinfo;
 
 	/**
 	 * @throws InvalidConfigException
