@@ -112,7 +112,7 @@ class Storage extends Component
 	 * @throws Exception
 	 * @throws InvalidConfigException
 	 */
-	public function save($file, $preserveFileName = false, $overwrite = false, $config = [], $pathPrefix = ''): bool|string
+	public function save($file, $preserveFileName = false, $mode = 'r+', $config = [], $pathPrefix = ''): bool|string
     {
         $pathPrefix = FileHelper::normalizePath($pathPrefix);
         $fileObj = File::create($file);
@@ -132,7 +132,7 @@ class Storage extends Component
 
         $this->beforeSave($fileObj->getPath(), $this->getFilesystem());
 
-        $stream = fopen($fileObj->getPath(), 'r+');
+        $stream = fopen($fileObj->getPath(), $mode);
 
         $defaultConfig = $this->defaultSaveConfig;
 
