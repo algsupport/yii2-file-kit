@@ -114,6 +114,9 @@ class Storage extends Component
 	 */
 	public function save($file, $preserveFileName = false, $mode = 'r+', $config = [], $pathPrefix = ''): bool|string
     {
+		if (str_contains($file, 'https')){
+			$file = $this->getFilesystem()->readStream($file);
+		}
         $pathPrefix = FileHelper::normalizePath($pathPrefix);
         $fileObj = File::create($file);
         $dirIndex = $this->getDirIndex($pathPrefix);
