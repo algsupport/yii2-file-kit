@@ -140,7 +140,7 @@ class UploadAction extends BaseAction
             if ($uploadedFile->error === UPLOAD_ERR_OK) {
                 $validationModel = DynamicModel::validateData(['file' => $uploadedFile], $this->validationRules);
                 if (!$validationModel->hasErrors()) {
-                    $path = $this->getFileStorage()->save($uploadedFile, false, false, $this->saveConfig, $this->uploadPath);
+                    $path = $this->getFileStorage()->save(file: $uploadedFile, config: $this->saveConfig, pathPrefix: $this->uploadPath);
                     if ($path) {
                         $output[$this->responsePathParam] = $path;
                         $output[$this->responseUrlParam] = $this->getFileStorage()->baseUrl . '/' . $path;
