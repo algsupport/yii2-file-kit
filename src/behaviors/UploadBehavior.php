@@ -358,7 +358,7 @@ class UploadBehavior extends Behavior
 	/**
 	 * @throws InvalidConfigException
 	 */
-	protected function deleteFiles(): bool
+	protected function deleteFiles()
 	{
         $storage = $this->getStorage();
         if ($this->deletePaths !== null) {
