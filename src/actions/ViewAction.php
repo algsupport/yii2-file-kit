@@ -2,6 +2,7 @@
 
 namespace trntv\filekit\actions;
 
+use Yii;
 use yii\web\HttpException;
 
 /**
@@ -16,28 +17,28 @@ class ViewAction extends BaseAction
      */
     public $pathParam = 'path';
     /**
-     * @var boolean, whether the browser should open the file within the browser window. Defaults to false,
+     * @var boolean whether the browser should open the file within the browser window. Defaults to false,
      * meaning a download dialog will pop up.
      */
     public $inline = false;
 
-    /**
-     * @return static
-     * @throws HttpException
-     * @throws \HttpException
-     */
-    public function run()
+	/**
+	 * @throws \yii\web\HttpException
+	 * @throws \yii\base\InvalidConfigException
+	 * @throws \yii\web\RangeNotSatisfiableHttpException
+	 */
+	public function run()
     {
-        $path = \Yii::$app->request->get($this->pathParam);
+        $path = Yii::$app->request->get($this->pathParam);
         $filesystem = $this->getFileStorage()->getFilesystem();
-        if ($filesystem->has($path) === false) {
+        if ($filesystem->fileExists($path) === false) {
             throw new HttpException(404);
         }
-        return \Yii::$app->response->sendStreamAsFile(
+        return Yii::$app->response->sendStreamAsFile(
             $filesystem->readStream($path),
             pathinfo($path, PATHINFO_BASENAME),
             [
-                'mimeType' => $filesystem->getMimetype($path),
+                'mimeType' => $filesystem->mimeType($path),
                 'inline' => $this->inline
             ]
         );
