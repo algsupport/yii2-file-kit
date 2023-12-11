@@ -1,6 +1,6 @@
 <?php
 
-namespace trntv\filekit\events;
+namespace algsupport\filekit\events;
 
 use yii\base\Event;
 

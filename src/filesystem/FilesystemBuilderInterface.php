@@ -1,11 +1,11 @@
 <?php
-namespace trntv\filekit\filesystem;
+namespace algsupport\filekit\filesystem;
 
 use League\Flysystem\Filesystem;
 
 /**
  * Interface FilesystemBuilderInterface
- * @package trntv\filekit\filesystem
+ * @package algsupport\filekit\filesystem
  */
 interface FilesystemBuilderInterface
 {

@@ -11,14 +11,14 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "yiisoft/yii2-jui": "^2.0.0",
-        "league/flysystem": "^2.0",
-        "npm-asset/blueimp-file-upload": "^9.7.0",
-        "rmrevin/yii2-fontawesome": "^3.4"
+        "yiisoft/yii2-jui": "*",
+        "league/flysystem": "*",
+        "npm-asset/blueimp-file-upload": "*",
+        "rmrevin/yii2-fontawesome": "*"
     },
     "autoload": {
         "psr-4": {
-            "trntv\\filekit\\": "src/"
+            "algsupport\\filekit\\": "src/"
         }
     },
     "repositories": [

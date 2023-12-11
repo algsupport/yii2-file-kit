@@ -1,15 +1,15 @@
 <?php
-namespace trntv\filekit\actions;
+namespace algsupport\filekit\actions;
 
 use Yii;
-use trntv\filekit\Storage;
+use algsupport\filekit\Storage;
 use yii\base\Action;
 use yii\di\Instance;
 use yii\base\InvalidConfigException;
 
 /**
  * Class BaseAction
- * @package trntv\filekit\actions
+ * @package algsupport\filekit\actions
  * @author Eugene Terentev <eugene@terentev.net>
  */
 abstract class BaseAction extends Action

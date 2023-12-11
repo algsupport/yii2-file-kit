@@ -1,5 +1,5 @@
 <?php
-namespace trntv\filekit;
+namespace algsupport\filekit;
 
 use Yii;
 use yii\base\InvalidConfigException;

@@ -1,10 +1,10 @@
 <?php
-namespace trntv\filekit\actions;
+namespace algsupport\filekit\actions;
 
 use Yii;
 use yii\base\Exception;
 use yii\base\InvalidConfigException;
-use trntv\filekit\events\UploadEvent;
+use algsupport\filekit\events\UploadEvent;
 use yii\base\DynamicModel;
 use yii\helpers\Html;
 use yii\helpers\Url;
@@ -16,7 +16,7 @@ use yii\web\UploadedFile;
 * public function actions(){
 *   return [
 *           'upload'=>[
-*               'class'=>'trntv\filekit\actions\UploadAction',
+*               'class'=>'algsupport\filekit\actions\UploadAction',
 *           ]
 *       ];
 *   }
@@ -94,7 +94,7 @@ class UploadAction extends BaseAction
      * It can be a callable for more flexible
      *
      * ```php
-     * function (\trntv\filekit\File $fileObj) {
+     * function (\algsupport\filekit\File $fileObj) {
      *
      *      return ['ContentDisposition' => 'filename="' . $fileObj->getPathInfo('filename') . '"'];
      * }

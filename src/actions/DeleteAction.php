@@ -1,16 +1,16 @@
 <?php
-namespace trntv\filekit\actions;
+namespace algsupport\filekit\actions;
 
 use Yii;
 use yii\web\HttpException;
 use yii\base\InvalidConfigException;
-use trntv\filekit\events\UploadEvent;
+use algsupport\filekit\events\UploadEvent;
 
 /**
  * public function actions(){
  *   return [
  *           'upload'=>[
- *               'class'=>'trntv\filekit\actions\DeleteAction',
+ *               'class'=>'algsupport\filekit\actions\DeleteAction',
  *               'on afterDelete' => function($event) {
  *                   $file = $event->file;
  *                   $thumb_path = Yii::getAlias('@storage/web/source/thumb/') . $file->getPath();

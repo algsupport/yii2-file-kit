@@ -1,5 +1,5 @@
 <?php
-namespace trntv\filekit\widget;
+namespace algsupport\filekit\widget;
 
 use Yii;
 use ArrayObject;
@@ -14,7 +14,7 @@ use yii\widgets\InputWidget;
 
 /**
  * Class Upload
- * @package trntv\filekit\widget
+ * @package algsupport\filekit\widget
  */
 class Upload extends InputWidget
 {

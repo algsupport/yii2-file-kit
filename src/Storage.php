@@ -1,20 +1,20 @@
 <?php
 
-namespace trntv\filekit;
+namespace algsupport\filekit;
 
 use Yii;
 use yii\base\Exception;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToWriteFile;
-use trntv\filekit\events\StorageEvent;
-use trntv\filekit\filesystem\FilesystemBuilderInterface;
+use algsupport\filekit\events\StorageEvent;
+use algsupport\filekit\filesystem\FilesystemBuilderInterface;
 use yii\base\Component;
 use yii\base\InvalidConfigException;
 use yii\helpers\FileHelper;
 
 /**
  * Class Storage
- * @package trntv\filekit
+ * @package algsupport\filekit
  * @author Eugene Terentev <eugene@terentev.net>
  */
 class Storage extends Component
@@ -58,7 +58,7 @@ class Storage extends Component
 	 * It can be a callable for more flexible
 	 *
 	 * ```php
-	 * function (\trntv\filekit\File $fileObj) {
+	 * function (\algsupport\filekit\File $fileObj) {
 	 *
 	 *      return ['ContentDisposition' => 'filename="' . $fileObj->getPathInfo('filename') . '"'];
 	 * }
