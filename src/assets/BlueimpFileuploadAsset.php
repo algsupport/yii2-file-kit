@@ -1,11 +1,11 @@
 <?php
-namespace algsupport\filekit\widget;
+namespace algsupport\filekit\assets;
 
 use yii\web\AssetBundle;
 
 class BlueimpFileuploadAsset extends AssetBundle
 {
-    public $sourcePath = '@npm/blueimp-file-upload';
+    public $sourcePath = __DIR__.'/blueimp/blueimp-file-upload';
 
     public $css = [
         'css/jquery.fileupload.css'
@@ -22,6 +22,6 @@ class BlueimpFileuploadAsset extends AssetBundle
 
     public $depends = [
         \yii\web\JqueryAsset::class,
-        \algsupport\filekit\widget\BlueimpLoadImageAsset::class
+        \algsupport\filekit\assets\BlueimpLoadImageAsset::class
     ];
 }

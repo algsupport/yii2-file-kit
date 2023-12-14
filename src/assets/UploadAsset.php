@@ -1,9 +1,9 @@
 <?php
-namespace algsupport\filekit\widget;
+namespace algsupport\filekit\assets;
 
+use rmrevin\yii\fontawesome\NpmFreeAssetBundle;
 use yii\web\AssetBundle;
 use yii\web\JqueryAsset;
-use rmrevin\yii\fontawesome\NpmFreeAssetBundle;
 
 class UploadAsset extends AssetBundle
 {

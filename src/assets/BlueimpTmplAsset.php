@@ -1,11 +1,11 @@
 <?php
-namespace algsupport\filekit\widget;
+namespace algsupport\filekit\assets;
 
 use yii\web\AssetBundle;
 
 class BlueimpTmplAsset extends AssetBundle
 {
-    public $sourcePath = '@npm/blueimp-tmpl';
+    public $sourcePath = __DIR__.'/blueimp/blueimp-tmpl';
 
     public $js = [
         'js/tmpl.min.js'

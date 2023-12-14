@@ -11,9 +11,8 @@
     ],
     "minimum-stability": "stable",
     "require": {
-        "yiisoft/yii2-jui": "*",
+        "algsupport/yii2-jui": "*",
         "league/flysystem": "*",
-        "npm-asset/blueimp-file-upload": "*",
         "rmrevin/yii2-fontawesome": "*"
     },
     "autoload": {
@@ -21,12 +20,6 @@
             "algsupport\\filekit\\": "src/"
         }
     },
-    "repositories": [
-        {
-            "type": "composer",
-            "url": "https://asset-packagist.org"
-        }
-    ],
     "config": {
         "allow-plugins": {
             "yiisoft/yii2-composer": true

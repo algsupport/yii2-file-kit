@@ -1,11 +1,11 @@
 <?php
-namespace algsupport\filekit\widget;
+namespace algsupport\filekit\assets;
 
 use yii\web\AssetBundle;
 
 class BlueimpLoadImageAsset extends AssetBundle
 {
-    public $sourcePath = '@npm/blueimp-load-image';
+    public $sourcePath = __DIR__.'/blueimp/blueimp-load-image';
 
     public $js = [
         'js/load-image.all.min.js'
