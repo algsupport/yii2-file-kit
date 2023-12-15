@@ -13,7 +13,7 @@
     "require": {
         "algsupport/yii2-jui": "*",
         "league/flysystem": "*",
-        "rmrevin/yii2-fontawesome": "*"
+		"algsupport/yii2-bootstrap-icons": "*"
     },
     "autoload": {
         "psr-4": {
@@ -24,5 +24,11 @@
         "allow-plugins": {
             "yiisoft/yii2-composer": true
         }
-    }
+    },
+	"repositories": [
+		{
+			"type": "composer",
+			"url": "https://asset-packagist.org"
+		}
+	]
 }
